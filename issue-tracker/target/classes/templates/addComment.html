@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Añadir Comentario</title>
+</head>
+<body>
+<h1>Añadir Comentario</h1>
+
+<p><strong>Issue ID:</strong> <span th:text="${issue.id}"></span></p>
+<p><strong>Título:</strong> <span th:text="${issue.title}"></span></p>
+
+<form action="/issues/{id}/comment" method="post" th:action="@{/issues/{id}/comment(id=${issue.id})}">
+    <input type="hidden" name="username" th:value="${username}"> <!-- Usuario actual -->
+
+    <label for="text">Comentario:</label>
+    <input type="text" id="text" name="text" required>
+
+    <button type="submit">Enviar Comentario</button>
+</form>
+
+<a href="/issues">Volver a la lista de issues</a>
+
+<!-- Mensaje para depuración -->
+<p th:text="${error}"></p> <!-- Muestra errores si los hay -->
+</body>
+</html>

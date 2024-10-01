@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lista de Issues</title>
+</head>
+<body>
+<h1>Lista de Issues</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Usuario</th>
+        <th>Descripción</th>
+        <th>Estado</th>
+        <th>Fecha</th>
+        <th>Detalles</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="issue : ${issues}">
+        <td th:text="${issue.id}"></td>
+        <td th:text="${issue.title}"></td>
+        <td th:text="${issue.user}"></td>
+        <td th:text="${issue.description}"></td>
+        <td th:text="${issue.status}"></td>
+        <td th:text="${issue.date}"></td>
+        <td><a th:href="@{/issues/{id}(id=${issue.id})}">Ver detalles</a></td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/issues/new">Crear un nuevo Issue</a>
+<br>
+<a href="/logout">Cerrar sesión</a>
+</body>
+</html>

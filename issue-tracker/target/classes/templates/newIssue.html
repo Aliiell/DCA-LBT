@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nuevo Issue</title>
+</head>
+<body>
+<h1>Crear un Nuevo Issue</h1>
+<form action="/issues" method="post">
+    <label for="title">Título:</label>
+    <input type="text" id="title" name="title" required>
+    <br>
+    <label for="description">Descripción:</label>
+    <textarea id="description" name="description" required></textarea>
+    <br>
+    <button type="submit">Crear Issue</button>
+</form>
+<a href="/issues">Volver a la lista de Issues</a>
+</body>
+</html>

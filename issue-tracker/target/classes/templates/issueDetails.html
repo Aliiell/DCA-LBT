@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Detalles del Issue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: left;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        h3 {
+            color: #333;
+            margin-top: 20px;
+            text-align: left;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+        ul li {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        a {
+            text-decoration: none;
+            color: white;
+        }
+        .admin-actions {
+            margin-top: 20px;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #007bff;
+            text-align: center;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Detalles del Issue</h1>
+
+    <p><strong>ID:</strong> <span th:text="${issue.id}"></span></p>
+    <p><strong>Título:</strong> <span th:text="${issue.title}"></span></p>
+    <p><strong>Usuario:</strong> <span th:text="${issue.user}"></span></p>
+    <p><strong>Descripción:</strong> <span th:text="${issue.description}"></span></p>
+    <p><strong>Estado:</strong> <span th:text="${issue.status}"></span></p>
+    <p><strong>Fecha de creación:</strong> <span th:text="${issue.date}"></span></p>
+
+    <h3>Comentarios:</h3>
+    <ul>
+        <li th:each="comment : ${issue.comments}">
+            <strong th:text="${comment.user}">Usuario</strong>:
+            <span th:text="${comment.text}">Comentario</span>
+        </li>
+    </ul>
+
+    <!-- Botón para añadir un nuevo comentario (solo si el issue no está cerrado) -->
+    <div th:if="${issue.status != 'closed'}">
+        <a th:href="@{/issues/{id}/comment(id=${issue.id})}">
+            <button>Añadir Comentario</button>
+        </a>
+    </div>
+
+    <!-- Mostrar acciones solo si el usuario está autenticado y es admin -->
+    <div class="admin-actions" th:if="${currentUser != null and currentUser.role == 'admin'}">
+        <div th:if="${issue.status == 'open'}">
+            <form th:action="@{/issues/{id}/close(id=${issue.id})}" method="post">
+                <button type="submit">Cerrar Issue</button>
+            </form>
+        </div>
+        <div th:if="${issue.status == 'closed'}">
+            <form th:action="@{/issues/{id}/reopen(id=${issue.id})}" method="post">
+                <button type="submit">Reabrir Issue</button>
+            </form>
+        </div>
+    </div>
+
+    <a href="/issues" class="back-link">Volver a la lista de issues</a>
+</div>
+</body>
+</html>
