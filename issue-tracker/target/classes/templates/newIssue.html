@@ -2,18 +2,89 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Nuevo Issue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        button {
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+        }
+        button:hover {
+            background-color: #4b0082;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #6a0dad;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-<h1>Crear un Nuevo Issue</h1>
-<form action="/issues" method="post">
-    <label for="title">Título:</label>
-    <input type="text" id="title" name="title" required>
-    <br>
-    <label for="description">Descripción:</label>
-    <textarea id="description" name="description" required></textarea>
-    <br>
-    <button type="submit">Crear Issue</button>
-</form>
-<a href="/issues">Volver a la lista de Issues</a>
+<div class="container">
+    <h1>Crear un Nuevo Issue</h1>
+    <form action="/issues" method="post">
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="labels">Etiquetas (separadas por comas):</label>
+        <input type="text" id="labels" name="labels">
+
+        <button type="submit">Crear Issue</button>
+    </form>
+    <a href="/issues">Volver a la lista de Issues</a>
+</div>
 </body>
 </html>

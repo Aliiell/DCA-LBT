@@ -44,7 +44,7 @@
             margin-bottom: 10px;
         }
         button {
-            background-color: #007bff;
+            background-color: #6a0dad;
             color: white;
             border: none;
             padding: 10px;
@@ -54,7 +54,7 @@
             margin: 0 auto;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #4b0082;
         }
         a {
             text-decoration: none;
@@ -66,12 +66,22 @@
         .back-link {
             display: block;
             margin-top: 20px;
-            color: #007bff;
+            color: #6a0dad;
             text-align: center;
             text-decoration: none;
         }
         .back-link:hover {
             text-decoration: underline;
+        }
+
+        .label {
+            display: inline-block;
+            background-color: #6a0dad;
+            color: white;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 3px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -86,6 +96,13 @@
     <p><strong>Estado:</strong> <span th:text="${issue.status}"></span></p>
     <p><strong>Fecha de creación:</strong> <span th:text="${issue.date}"></span></p>
 
+    <div th:if="${issue.labels != null and !issue.labels.isEmpty()}">
+        <h3>Etiquetas:</h3>
+        <div>
+            <span th:each="label : ${issue.labels}" th:text="${label}" class="label"></span>
+        </div>
+    </div>
+
     <h3>Comentarios:</h3>
     <ul>
         <li th:each="comment : ${issue.comments}">
@@ -94,14 +111,12 @@
         </li>
     </ul>
 
-    <!-- Botón para añadir un nuevo comentario (solo si el issue no está cerrado) -->
     <div th:if="${issue.status != 'closed'}">
         <a th:href="@{/issues/{id}/comment(id=${issue.id})}">
             <button>Añadir Comentario</button>
         </a>
     </div>
 
-    <!-- Mostrar acciones solo si el usuario está autenticado y es admin -->
     <div class="admin-actions" th:if="${currentUser != null and currentUser.role == 'admin'}">
         <div th:if="${issue.status == 'open'}">
             <form th:action="@{/issues/{id}/close(id=${issue.id})}" method="post">

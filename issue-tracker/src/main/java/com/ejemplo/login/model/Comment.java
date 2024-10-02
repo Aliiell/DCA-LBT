@@ -9,7 +9,7 @@ public class Comment {
         this.text = text;
     }
 
-    // Getters y Setters
+
     public String getUser() {
         return user;
     }

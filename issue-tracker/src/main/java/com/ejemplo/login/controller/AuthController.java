@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.ejemplo.login.model.Comment; // Asegúrate de importar la clase Comment
+import com.ejemplo.login.model.Comment;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -18,7 +20,7 @@ public class AuthController {
 
     @RequestMapping("/")
     public String redirectToRegister() {
-        return "redirect:/register";  // Redirige a la página de registro
+        return "redirect:/register";
     }
 
     @RequestMapping("/register")
@@ -45,9 +47,9 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, Model model) {
         if (authService.login(username, password)) {
-            User actualUser = AuthService.getActualUser(); // Acceder al usuario logueado
+            User actualUser = AuthService.getActualUser();
             model.addAttribute("message", "Bienvenido " + actualUser.getUsername());
-            return "redirect:/issues"; // Puedes redirigir a una página home o similar
+            return "redirect:/issues";
         } else {
             model.addAttribute("message", "Credenciales incorrectas");
             return "login";
@@ -56,32 +58,37 @@ public class AuthController {
 
     @GetMapping("/issues")
     public String issueList(Model model) {
-        // Obtener la lista de issues desde el servicio y pasarla al modelo
         List<Issue> issues = AuthService.getIssueList();
         model.addAttribute("issues", issues);
-        return "issueList"; // Nombre de la plantilla Thymeleaf
+        return "issueList";
     }
 
-    // Mostrar formulario para crear un nuevo issue
     @GetMapping("/issues/new")
     public String newIssueForm() {
-        return "newIssue"; // Nombre de la plantilla Thymeleaf
+        return "newIssue";
     }
 
-    // Procesar la creación de un nuevo issue
     @PostMapping("/issues")
-    public String addIssue(@RequestParam String title, @RequestParam String description, Model model) {
-        // Obtener el usuario actualmente logueado
+    public String addIssue(@RequestParam String title,
+                           @RequestParam String description,
+                           @RequestParam(required = false) String labels,
+                           Model model) {
         User actualUser = AuthService.getActualUser();
 
         if (actualUser != null) {
-            // Crear un nuevo issue
+            List<String> labelList = new ArrayList<>();
+            if (labels != null && !labels.isEmpty()) {
+                labelList = Arrays.asList(labels.split("\\s*,\\s*"));
+            }
+
             Issue newIssue = new Issue(title, actualUser.getUsername(), description, "open", LocalDate.now());
-            authService.addIssue(newIssue); // Añadir el nuevo issue
-            return "redirect:/issues"; // Redirigir a la lista de issues
+            newIssue.setLabels(labelList);
+            authService.addIssue(newIssue);
+
+            return "redirect:/issues";
         } else {
             model.addAttribute("message", "No hay usuario logueado");
-            return "login"; // En caso de que no haya usuario logueado, redirige al login
+            return "login";
         }
     }
 
@@ -89,10 +96,6 @@ public class AuthController {
     public String viewIssueDetails(@PathVariable("id") int id, Model model) {
         Issue issue = authService.getIssueById(id);
         User currentUser = authService.getActualUser();
-
-        // Agrega esto para depurar
-        System.out.println("Usuario actual: " + (currentUser != null ? currentUser.getUsername() : "No hay usuario logueado"));
-        System.out.println("Rol del usuario actual: " + (currentUser != null ? currentUser.getRole() : "No hay rol"));
 
         if (issue != null) {
             model.addAttribute("issue", issue);
@@ -107,54 +110,48 @@ public class AuthController {
 
     @PostMapping("/issues/{id}/close")
     public String closeIssue(@PathVariable("id") int id) {
-        authService.closeIssue(id); // Lógica para cerrar el issue
-        return "redirect:/issues"; // Redirige a la lista de issues
+        authService.closeIssue(id);
+        return "redirect:/issues";
     }
 
     // Método para reabrir un issue
     @PostMapping("/issues/{id}/reopen")
     public String reopenIssue(@PathVariable("id") int id) {
-        authService.reopenIssue(id); // Lógica para reabrir el issue
-        return "redirect:/issues"; // Redirige a la lista de issues
+        authService.reopenIssue(id);
+        return "redirect:/issues";
     }
 
     @RequestMapping("/logout")
     public String logout() {
-        authService.logout(); // Limpia el usuario activo
-        return "redirect:/login"; // Redirige a la página de login
+        authService.logout();
+        return "redirect:/login";
     }
 
     @PostMapping("/issues/{id}/comment")
-    public String addComment(@PathVariable("id") int id, @RequestParam String username, @RequestParam String text, Model model) {
-        System.out.println("Intentando agregar comentario para el Issue ID: " + id);
-        System.out.println("Usuario: " + username);
-        System.out.println("Texto del Comentario: " + text);
+    public String addComment(@PathVariable("id") int id, @RequestParam String text) {
+        Issue issue = authService.getIssueById(id);
+        User currentUser = authService.getActualUser(); // Obtiene el usuario actual
 
-        Issue issue = authService.getIssueById(id); // Obtener el issue por ID
-        if (issue != null) {
-            Comment newComment = new Comment(username, text); // Crear una nueva instancia de Comment
-            issue.addComment(newComment); // Añadir el comentario al issue
-            System.out.println("Comentario añadido: " + newComment.getText());
-            model.addAttribute("issue", issue); // Pasar el issue al modelo
-            return "issueDetails"; // Redirigir a la vista de detalles del issue
+        if (issue != null && currentUser != null) {
+            Comment newComment = new Comment(currentUser.getUsername(), text); // Usa el usuario actual
+            issue.addComment(newComment);
+
+            // Redirige a la vista de detalles del issue
+            return "redirect:/issues/" + id; // Esto vuelve a cargar la página con el issue actualizado
         } else {
-            System.out.println("Error: Issue no encontrado.");
-            model.addAttribute("error", "Issue no encontrado"); // Manejo de error
-            return "error"; // Redirigir a una página de error
+            return "error"; // Manejo de error si el issue no se encuentra
         }
     }
 
+
     @RequestMapping("/issues/{id}/comment")
     public String commentForm(@PathVariable("id") int id, Model model) {
-        Issue issue = authService.getIssueById(id); // Obtener el issue por ID
+        Issue issue = authService.getIssueById(id);
         if (issue != null) {
-            model.addAttribute("issue", issue); // Pasar el issue al modelo
-            model.addAttribute("username", authService.getActualUser().getUsername()); // Obtener el nombre del usuario actual
-            System.out.println("Cargando formulario de comentario para el Issue ID: " + id);
-        } else {
-            System.out.println("Error: Issue no encontrado.");
+            model.addAttribute("issue", issue);
+            model.addAttribute("username", authService.getActualUser().getUsername());
         }
-        return "addComment"; // Redirigir a la vista de añadir comentario
+        return "addComment";
     }
 
 }
